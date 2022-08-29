@@ -1,0 +1,16 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "e:\\soundprogramming\\dependencies\\fmod_core_api\\inc\\fmod.h",
+        "ProvidedModule": "",
+        "Includes": [
+            "e:\\soundprogramming\\dependencies\\fmod_core_api\\inc\\fmod_common.h",
+            "e:\\soundprogramming\\dependencies\\fmod_core_api\\inc\\fmod_codec.h",
+            "e:\\soundprogramming\\dependencies\\fmod_core_api\\inc\\fmod_dsp.h",
+            "e:\\soundprogramming\\dependencies\\fmod_core_api\\inc\\fmod_dsp_effects.h",
+            "e:\\soundprogramming\\dependencies\\fmod_core_api\\inc\\fmod_output.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}
