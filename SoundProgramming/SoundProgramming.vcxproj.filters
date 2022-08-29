@@ -35,6 +35,9 @@
     <ClInclude Include="common_platform.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="MenuState.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SoundProgramming.rc">

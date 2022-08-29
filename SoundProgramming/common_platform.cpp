@@ -190,6 +190,11 @@ const char *Common_BtnStr(Common_Button btn)
         case BTN_ACTION2:   return "2";
         case BTN_ACTION3:   return "3";
         case BTN_ACTION4:   return "4";
+        case BTN_ACTION5:   return "5";
+        case BTN_ACTION6:   return "6";
+        case BTN_ACTION7:   return "7";
+        case BTN_ACTION8:   return "8";
+        case BTN_ACTION9:   return "9";
         case BTN_LEFT:      return "LEFT";
         case BTN_RIGHT:     return "RIGHT";
         case BTN_UP:        return "UP";
@@ -208,7 +213,7 @@ const char *Common_MediaPath(const char *fileName)
     if (!pathPrefix)
     {
         const char *emptyPrefix = "";
-        const char *mediaPrefix = "../media/";
+        const char *mediaPrefix = "../Media/";
         FILE *file = fopen(fileName, "r");
         if (file)
         {
