@@ -34,7 +34,7 @@ int FMOD_Main()
 
 	result = FMOD::System_Create(&system);      // Create the main system object.
 	ERRCHECK(result);
-	result = system->init(4, FMOD_INIT_NORMAL, extradriverdata);    // Initialize FMOD.
+	result = system->init(32, FMOD_INIT_NORMAL, extradriverdata);    // Initialize FMOD.
 	ERRCHECK(result);
 	result = system->set3DSettings(1.0, DISTANCEFACTOR, 1.0f);
 	ERRCHECK(result);
