@@ -114,6 +114,11 @@ void Common_Update()
         else if (key == '2')    newButtons |= (1 << BTN_ACTION2);
         else if (key == '3')    newButtons |= (1 << BTN_ACTION3);
         else if (key == '4')    newButtons |= (1 << BTN_ACTION4);
+        else if (key == '5')    newButtons |= (1 << BTN_ACTION5);
+        else if (key == '6')    newButtons |= (1 << BTN_ACTION6);
+        else if (key == '7')    newButtons |= (1 << BTN_ACTION7);
+        else if (key == '8')    newButtons |= (1 << BTN_ACTION8);
+        else if (key == '9')    newButtons |= (1 << BTN_ACTION9);
         else if (key == 256+75) newButtons |= (1 << BTN_LEFT);
         else if (key == 256+77) newButtons |= (1 << BTN_RIGHT);
         else if (key == 256+72) newButtons |= (1 << BTN_UP);

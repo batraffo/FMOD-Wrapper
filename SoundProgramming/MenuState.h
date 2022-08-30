@@ -2,7 +2,8 @@
 
 enum class MenuState {
 	MainMenu,
-	PlayingStream,
-	PlayingSound,
-	Paused
+	SelectLoad,
+	SelectLoop,
+	Playing,
+	PlayingPan
 };
