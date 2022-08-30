@@ -5,5 +5,6 @@ enum class MenuState {
 	SelectLoad,
 	SelectLoop,
 	Playing,
+	SelectNewSoundToLoad,
 	PlayingPan
 };

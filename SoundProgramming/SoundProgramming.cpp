@@ -19,6 +19,7 @@ int FMOD_Main()
 	FMOD::System* system = NULL;
 	FMOD::Sound* sound, * sound_to_play;
 	FMOD::Channel* channel = 0;
+	FMOD::ChannelGroup* channelGroup = 0;
 	int               numsubsounds;
 	MenuState		state = MenuState::MainMenu;
 	std::string		nameOfTheSound;
@@ -170,6 +171,9 @@ int FMOD_Main()
 					result = channel->getVolume(&volume);
 					ERRCHECK(result);
 
+					result = channel->getChannelGroup(&channelGroup);
+					ERRCHECK(result);
+
 					break;
 				}
 				//loop
@@ -203,6 +207,9 @@ int FMOD_Main()
 					result = channel->getVolume(&volume);
 					ERRCHECK(result);
 
+					result = channel->getChannelGroup(&channelGroup);
+					ERRCHECK(result);
+
 					break;
 				}
 
@@ -214,23 +221,28 @@ int FMOD_Main()
 			case MenuState::Playing:
 
 				if (Common_BtnPress(BTN_ACTION1)) {
-					result = channel->getPaused(&paused);
+					result = channelGroup->getPaused(&paused);
 					ERRCHECK(result);
 					paused = !paused;
-					result = channel->setPaused(paused);
+					result = channelGroup->setPaused(paused);
 					ERRCHECK(result);
 				}
 
 				if (Common_BtnPress(BTN_ACTION2)) {
-					result = channel->stop();
+					result = channelGroup->stop();
 					ERRCHECK(result);
 					state = MenuState::MainMenu;
 					break;
 				}
 
+				if (Common_BtnPress(BTN_ACTION3)) {
+					state = MenuState::SelectNewSoundToLoad;
+					break;
+				}
+
 				if (Common_BtnPress(BTN_UP)) {
 					volume++;
-					result = channel->setVolume(volume);
+					result = channelGroup->setVolume(volume);
 					ERRCHECK(result);
 				}
 
@@ -238,7 +250,7 @@ int FMOD_Main()
 					volume--;
 					if (volume <= 0)
 						volume = 0;
-					result = channel->setVolume(volume);
+					result = channelGroup->setVolume(volume);
 					ERRCHECK(result);
 				}
 
@@ -248,10 +260,44 @@ int FMOD_Main()
 				else
 					Common_Draw("Press %s to resume", Common_BtnStr(BTN_ACTION1));
 				Common_Draw("Press %s to stop go to the main menu", Common_BtnStr(BTN_ACTION2));
+				Common_Draw("Press %s to to add a new audio channel", Common_BtnStr(BTN_ACTION3));
 				Common_Draw("Press %s to turn up the volume", Common_BtnStr(BTN_UP));
 				Common_Draw("Press %s to turn down the volume", Common_BtnStr(BTN_DOWN));
 				break;
 
+			case MenuState::SelectNewSoundToLoad:
+
+				for (int y = 0; y < i; y++) {
+					if (Common_BtnPress((Common_Button)y)) {
+						nameOfTheSound = firstNineFilesInMediaDirectory[y];
+						state = MenuState::Playing;
+						result = system->createStream(Common_MediaPath(nameOfTheSound.c_str()), FMOD_LOOP_NORMAL, 0, &sound);
+						ERRCHECK(result);
+
+						result = sound->getNumSubSounds(&numsubsounds);
+						ERRCHECK(result);
+
+						if (numsubsounds)
+						{
+							sound->getSubSound(0, &sound_to_play);
+							ERRCHECK(result);
+						}
+						else
+						{
+							sound_to_play = sound;
+						}
+						result = system->playSound(sound_to_play, 0, false, &channel);
+						ERRCHECK(result);
+						break;
+					}
+				}
+
+				Common_Draw("Press %s to quit", Common_BtnStr(BTN_QUIT));
+				for (int y = 0; y < i; y++)
+					Common_Draw("Press %s to open %s", Common_BtnStr((Common_Button)y), firstNineFilesInMediaDirectory[y].c_str());
+				Common_Draw("\nThe new sound will be streamed in loop");
+
+				break;
 
 			case MenuState::PlayingPan:
 
@@ -296,29 +342,21 @@ int FMOD_Main()
 				break;
 
 			default:
-
-				result = system->createStream(Common_MediaPath("swish.wav"), FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
-				ERRCHECK(result);
-				result = sound->getNumSubSounds(&numsubsounds);
-				ERRCHECK(result);
-
-				if (numsubsounds)
-				{
-					sound->getSubSound(0, &sound_to_play);
-					ERRCHECK(result);
-				}
-				else
-				{
-					sound_to_play = sound;
-				}
-				result = system->playSound(sound_to_play, 0, false, &channel);
-				ERRCHECK(result);
-
+				Common_Draw("You are not supposed to be here");
+				Common_Draw("Press %s to quit", Common_BtnStr(BTN_QUIT));
 				break;
 		}
 		
 
 	} while (!Common_BtnPress(BTN_QUIT));
+
+	result = system->close();
+	ERRCHECK(result);
+	result = system->release();
+	ERRCHECK(result);
+
+	Common_Close();
+
 
 	return 0;
 }
