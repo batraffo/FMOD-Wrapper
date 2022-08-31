@@ -2,6 +2,7 @@
 FMOD Example Framework
 Copyright (c), Firelight Technologies Pty, Ltd 2012-2022.
 ==============================================================================*/
+#include "pch.h"
 #include "common.h"
 #include "fmod_errors.h"
 

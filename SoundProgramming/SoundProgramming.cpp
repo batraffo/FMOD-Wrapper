@@ -2,15 +2,14 @@
 #include "fmod.h"
 #include "fmod.hpp"
 #include "fmod_errors.h"
+#include "FMODWrapper.h"
+#include "common.h"
+
 
 #include <filesystem>
 #include <string>
 #include <iostream>
-#include "common.h"
 #include "MenuState.h"
-
-const int   INTERFACE_UPDATETIME = 50;      // 50ms update for interface
-const float DISTANCEFACTOR = 1.0f;          // Units per meter.
 
 int FMOD_Main()
 {
@@ -30,7 +29,12 @@ int FMOD_Main()
 	float t = 0;
 	FMOD_VECTOR lastpos = { 0.0f, 0.0f, 0.0f };
 	
+	
+	MyFMODLib::FMODWrapper wrapper;
+
 	Common_Init(&extradriverdata);
+
+	//wrapper.InitFMOD(extradriverdata);
 
 	result = FMOD::System_Create(&system);      // Create the main system object.
 	ERRCHECK(result);

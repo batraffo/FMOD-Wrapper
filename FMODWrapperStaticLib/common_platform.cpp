@@ -2,6 +2,9 @@
 FMOD Example Framework
 Copyright (c), Firelight Technologies Pty, Ltd 2012-2022.
 ==============================================================================*/
+#include "pch.h"
+
+
 #define WIN32_LEAN_AND_MEAN
 
 #include "common.h"
@@ -14,11 +17,11 @@ Copyright (c), Firelight Technologies Pty, Ltd 2012-2022.
 static unsigned int gPressedButtons = 0;
 static unsigned int gDownButtons = 0;
 static HANDLE gConsoleHandle = NULL;
-static CHAR_INFO gConsoleBuffer[NUM_COLUMNS * NUM_ROWS] = {0};
-static char gWriteBuffer[NUM_COLUMNS * NUM_ROWS] = {0};
+static CHAR_INFO gConsoleBuffer[NUM_COLUMNS * NUM_ROWS] = { 0 };
+static char gWriteBuffer[NUM_COLUMNS * NUM_ROWS] = { 0 };
 static unsigned int gYPos = 0;
 static bool gPaused = false;
-static std::vector<char *> gPathList;
+static std::vector<char*> gPathList;
 
 bool Common_Private_Test;
 int Common_Private_Argc;
@@ -38,7 +41,7 @@ void Common_Init(void** /*extraDriverData*/)
 {
     gConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    CONSOLE_SCREEN_BUFFER_INFO bufferInfo = {0};
+    CONSOLE_SCREEN_BUFFER_INFO bufferInfo = { 0 };
     GetConsoleScreenBufferInfo(gConsoleHandle, &bufferInfo);
 
     // Set window and buffer width, order is important buffer must always be >= window
@@ -51,7 +54,7 @@ void Common_Init(void** /*extraDriverData*/)
         SetConsoleWindowInfo(gConsoleHandle, TRUE, &bufferInfo.srWindow);
     }
     else
-    {       
+    {
         SetConsoleWindowInfo(gConsoleHandle, TRUE, &bufferInfo.srWindow);
         SetConsoleScreenBufferSize(gConsoleHandle, bufferInfo.dwSize);
     }
@@ -66,13 +69,13 @@ void Common_Init(void** /*extraDriverData*/)
         SetConsoleWindowInfo(gConsoleHandle, TRUE, &bufferInfo.srWindow);
     }
     else
-    {       
+    {
         SetConsoleWindowInfo(gConsoleHandle, TRUE, &bufferInfo.srWindow);
         SetConsoleScreenBufferSize(gConsoleHandle, bufferInfo.dwSize);
     }
 
     // Hide the cursor
-    CONSOLE_CURSOR_INFO cursorInfo = {0};
+    CONSOLE_CURSOR_INFO cursorInfo = { 0 };
     cursorInfo.bVisible = false;
     cursorInfo.dwSize = 100;
     SetConsoleCursorInfo(gConsoleHandle, &cursorInfo);
@@ -86,7 +89,7 @@ void Common_Close()
 {
     CoUninitialize();
 
-    for (std::vector<char *>::iterator item = gPathList.begin(); item != gPathList.end(); ++item)
+    for (std::vector<char*>::iterator item = gPathList.begin(); item != gPathList.end(); ++item)
     {
         free(*item);
     }
@@ -110,7 +113,7 @@ void Common_Update()
             key = 256 + _getwch(); // Handle multi-char keys
         }
 
-        if      (key == '1')    newButtons |= (1 << BTN_ACTION1);
+        if (key == '1')    newButtons |= (1 << BTN_ACTION1);
         else if (key == '2')    newButtons |= (1 << BTN_ACTION2);
         else if (key == '3')    newButtons |= (1 << BTN_ACTION3);
         else if (key == '4')    newButtons |= (1 << BTN_ACTION4);
@@ -119,10 +122,10 @@ void Common_Update()
         else if (key == '7')    newButtons |= (1 << BTN_ACTION7);
         else if (key == '8')    newButtons |= (1 << BTN_ACTION8);
         else if (key == '9')    newButtons |= (1 << BTN_ACTION9);
-        else if (key == 256+75) newButtons |= (1 << BTN_LEFT);
-        else if (key == 256+77) newButtons |= (1 << BTN_RIGHT);
-        else if (key == 256+72) newButtons |= (1 << BTN_UP);
-        else if (key == 256+80) newButtons |= (1 << BTN_DOWN);
+        else if (key == 256 + 75) newButtons |= (1 << BTN_LEFT);
+        else if (key == 256 + 77) newButtons |= (1 << BTN_RIGHT);
+        else if (key == 256 + 72) newButtons |= (1 << BTN_UP);
+        else if (key == 256 + 80) newButtons |= (1 << BTN_DOWN);
         else if (key == 32)     newButtons |= (1 << BTN_MORE);
         else if (key == 27)     newButtons |= (1 << BTN_QUIT);
         else if (key == 112)    gPaused = !gPaused;
@@ -142,9 +145,9 @@ void Common_Update()
             gConsoleBuffer[i].Attributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
         }
 
-        COORD bufferSize = {NUM_COLUMNS, NUM_ROWS};
-        COORD bufferCoord = {0, 0};
-        SMALL_RECT writeRegion = {0, 0, NUM_COLUMNS - 1, NUM_ROWS - 1};
+        COORD bufferSize = { NUM_COLUMNS, NUM_ROWS };
+        COORD bufferCoord = { 0, 0 };
+        SMALL_RECT writeRegion = { 0, 0, NUM_COLUMNS - 1, NUM_ROWS - 1 };
         WriteConsoleOutput(gConsoleHandle, gConsoleBuffer, bufferSize, bufferCoord, &writeRegion);
         fflush(stdout);
     }
@@ -166,7 +169,7 @@ void Common_Exit(int returnCode)
     exit(returnCode);
 }
 
-void Common_DrawText(const char *text)
+void Common_DrawText(const char* text)
 {
     if (gYPos < NUM_ROWS)
     {
@@ -187,39 +190,39 @@ bool Common_BtnDown(Common_Button btn)
     return ((gDownButtons & (1 << btn)) != 0);
 }
 
-const char *Common_BtnStr(Common_Button btn)
+const char* Common_BtnStr(Common_Button btn)
 {
     switch (btn)
     {
-        case BTN_ACTION1:   return "1";
-        case BTN_ACTION2:   return "2";
-        case BTN_ACTION3:   return "3";
-        case BTN_ACTION4:   return "4";
-        case BTN_ACTION5:   return "5";
-        case BTN_ACTION6:   return "6";
-        case BTN_ACTION7:   return "7";
-        case BTN_ACTION8:   return "8";
-        case BTN_ACTION9:   return "9";
-        case BTN_LEFT:      return "LEFT";
-        case BTN_RIGHT:     return "RIGHT";
-        case BTN_UP:        return "UP";
-        case BTN_DOWN:      return "DOWN";
-        case BTN_MORE:      return "SPACE";
-        case BTN_QUIT:      return "ESCAPE";
-        default:            return "Unknown";
+    case BTN_ACTION1:   return "1";
+    case BTN_ACTION2:   return "2";
+    case BTN_ACTION3:   return "3";
+    case BTN_ACTION4:   return "4";
+    case BTN_ACTION5:   return "5";
+    case BTN_ACTION6:   return "6";
+    case BTN_ACTION7:   return "7";
+    case BTN_ACTION8:   return "8";
+    case BTN_ACTION9:   return "9";
+    case BTN_LEFT:      return "LEFT";
+    case BTN_RIGHT:     return "RIGHT";
+    case BTN_UP:        return "UP";
+    case BTN_DOWN:      return "DOWN";
+    case BTN_MORE:      return "SPACE";
+    case BTN_QUIT:      return "ESCAPE";
+    default:            return "Unknown";
     }
 }
 
-const char *Common_MediaPath(const char *fileName)
+const char* Common_MediaPath(const char* fileName)
 {
-    char *filePath = (char *)calloc(256, sizeof(char));
+    char* filePath = (char*)calloc(256, sizeof(char));
 
     static const char* pathPrefix = nullptr;
     if (!pathPrefix)
     {
-        const char *emptyPrefix = "";
-        const char *mediaPrefix = "../Media/";
-        FILE *file = fopen(fileName, "r");
+        const char* emptyPrefix = "";
+        const char* mediaPrefix = "../Media/";
+        FILE* file = fopen(fileName, "r");
         if (file)
         {
             fclose(file);
@@ -239,14 +242,14 @@ const char *Common_MediaPath(const char *fileName)
     return filePath;
 }
 
-const char *Common_WritePath(const char *fileName)
+const char* Common_WritePath(const char* fileName)
 {
-	return Common_MediaPath(fileName);
+    return Common_MediaPath(fileName);
 }
 
-void Common_TTY(const char *format, ...)
+void Common_TTY(const char* format, ...)
 {
-    char string[1024] = {0};
+    char string[1024] = { 0 };
 
     va_list args;
     va_start(args, format);
