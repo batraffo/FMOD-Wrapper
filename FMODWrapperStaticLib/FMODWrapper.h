@@ -21,17 +21,25 @@ namespace MyFMODLib{
 		FMOD::Channel* channel = 0;
 		FMOD::ChannelGroup* channelGroup = 0;
 		int               numsubsounds;
+		float t = 0;
+		FMOD_VECTOR lastpos = { 0.0f, 0.0f, 0.0f };
+		FMOD_VECTOR      listenerpos = { 0.0f, 0.0f, -1.0f * DISTANCEFACTOR };
+		float volume;
 
 		void InitFMOD(void *);
-		void LoadStatic(bool looping);
-		void LoadStreaming(bool looping);
+		void LoadOneShot(bool isStream, const char* nameOfTheSound);
+		void LoadLoop(bool isStream, const char* nameOfTheSound);
+		void Load3DSound(const char * nameOfTheSound);
 		void MakeSoundPanLeftToRight();
 		void RaiseVolume();
 		void LowerVolume();
-		void AddNewSoundAfterLoad();
+		void AddNewSoundAfterLoad(const char* nameOfTheSound);
+		void PlayChannels();
+		void PauseChannels();
+		void GetGroupChannelPaused(bool* paused);
+		void StopChannels();
 		void Stop();
-		void Play();
-		void Pause();
+		void CloseFMOD();
 	};
 
 }

@@ -14,34 +14,19 @@
 int FMOD_Main()
 {
 	void* extradriverdata = 0;
-	FMOD_RESULT result;
-	FMOD::System* system = NULL;
-	FMOD::Sound* sound, * sound_to_play;
-	FMOD::Channel* channel = 0;
-	FMOD::ChannelGroup* channelGroup = 0;
-	int               numsubsounds;
 	MenuState		state = MenuState::MainMenu;
 	std::string		nameOfTheSound;
 	bool isStream = 0;
-	bool paused = 0;
-	float volume;
-	FMOD_VECTOR      listenerpos = { 0.0f, 0.0f, -1.0f * DISTANCEFACTOR };
-	float t = 0;
-	FMOD_VECTOR lastpos = { 0.0f, 0.0f, 0.0f };
+	bool playing = 1;
 	
 	
 	MyFMODLib::FMODWrapper wrapper;
 
 	Common_Init(&extradriverdata);
 
-	//wrapper.InitFMOD(extradriverdata);
+	wrapper.InitFMOD(extradriverdata);
 
-	result = FMOD::System_Create(&system);      // Create the main system object.
-	ERRCHECK(result);
-	result = system->init(32, FMOD_INIT_NORMAL, extradriverdata);    // Initialize FMOD.
-	ERRCHECK(result);
-	result = system->set3DSettings(1.0, DISTANCEFACTOR, 1.0f);
-	ERRCHECK(result);
+	
 	std::string firstNineFilesInMediaDirectory[9];
 	std::string dirPath = "../Media/";
 
@@ -66,7 +51,7 @@ int FMOD_Main()
 		switch (state) {
 
 			case MenuState::MainMenu:
-				paused = 0;
+				playing = 1;
 				for (int y = 0; y < i; y++) {
 					if (Common_BtnPress((Common_Button)y)) {
 						nameOfTheSound = firstNineFilesInMediaDirectory[y];
@@ -98,36 +83,9 @@ int FMOD_Main()
 
 				//pan left and right
 				if (Common_BtnPress(BTN_ACTION3)) {
-					
-					ERRCHECK(result);
-					result = system->createSound(Common_MediaPath(nameOfTheSound.c_str()), FMOD_LOOP_NORMAL | FMOD_3D, 0, &sound);
-					ERRCHECK(result);
-					result = sound->set3DMinMaxDistance(0.5f * DISTANCEFACTOR, 5000.0f * DISTANCEFACTOR);
-					ERRCHECK(result);
+					wrapper.Load3DSound(nameOfTheSound.c_str());
+
 					state = MenuState::PlayingPan;
-
-					FMOD_VECTOR pos = { 0.0f, 0.0f, 0.0f };
-					FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
-
-					result = sound->getNumSubSounds(&numsubsounds);
-					ERRCHECK(result);
-
-					if (numsubsounds)
-					{
-						sound->getSubSound(0, &sound_to_play);
-						ERRCHECK(result);
-					}
-					else
-					{
-						sound_to_play = sound;
-					}
-					result = system->playSound(sound_to_play, 0, false, &channel);
-					ERRCHECK(result);
-					result = channel->set3DAttributes(&pos, &vel);
-					ERRCHECK(result);
-					t = 0;
-					lastpos = { 0.0f, 0.0f, 0.0f };
-
 					break;
 				}
 
@@ -144,75 +102,17 @@ int FMOD_Main()
 
 				//one-shot
 				if (Common_BtnPress(BTN_ACTION1)) {
-					if (isStream) {
-						result = system->createStream(Common_MediaPath(nameOfTheSound.c_str()), FMOD_LOOP_OFF, 0, &sound);
-						ERRCHECK(result);
-						
-					}
-					else {
-						result = system->createSound(Common_MediaPath(nameOfTheSound.c_str()), FMOD_LOOP_OFF, 0, &sound);
-						ERRCHECK(result);
-					}
 
+					wrapper.LoadOneShot(isStream, nameOfTheSound.c_str());
 
 					state = MenuState::Playing;
-
-					result = sound->getNumSubSounds(&numsubsounds);
-					ERRCHECK(result);
-
-					if (numsubsounds)
-					{
-						sound->getSubSound(0, &sound_to_play);
-						ERRCHECK(result);
-					}
-					else
-					{
-						sound_to_play = sound;
-					}
-					result = system->playSound(sound_to_play, 0, false, &channel);
-					ERRCHECK(result);
-
-					result = channel->getVolume(&volume);
-					ERRCHECK(result);
-
-					result = channel->getChannelGroup(&channelGroup);
-					ERRCHECK(result);
 
 					break;
 				}
 				//loop
 				if (Common_BtnPress(BTN_ACTION2)) {
-					if (isStream) {
-						result = system->createStream(Common_MediaPath(nameOfTheSound.c_str()), FMOD_LOOP_NORMAL, 0, &sound);
-						ERRCHECK(result);
-					}
-					else {
-						result = system->createSound(Common_MediaPath(nameOfTheSound.c_str()), FMOD_LOOP_NORMAL, 0, &sound);
-						ERRCHECK(result);
-					}
-
+					wrapper.LoadLoop(isStream, nameOfTheSound.c_str());
 					state = MenuState::Playing;
-
-					result = sound->getNumSubSounds(&numsubsounds);
-					ERRCHECK(result);
-
-					if (numsubsounds)
-					{
-						sound->getSubSound(0, &sound_to_play);
-						ERRCHECK(result);
-					}
-					else
-					{
-						sound_to_play = sound;
-					}
-					result = system->playSound(sound_to_play, 0, false, &channel);
-					ERRCHECK(result);
-
-					result = channel->getVolume(&volume);
-					ERRCHECK(result);
-
-					result = channel->getChannelGroup(&channelGroup);
-					ERRCHECK(result);
 
 					break;
 				}
@@ -225,16 +125,17 @@ int FMOD_Main()
 			case MenuState::Playing:
 
 				if (Common_BtnPress(BTN_ACTION1)) {
-					result = channelGroup->getPaused(&paused);
-					ERRCHECK(result);
-					paused = !paused;
-					result = channelGroup->setPaused(paused);
-					ERRCHECK(result);
+					if (!playing) {
+						wrapper.PauseChannels();
+					}
+					else {
+						wrapper.PlayChannels();
+					}
+					playing = !playing;
 				}
 
 				if (Common_BtnPress(BTN_ACTION2)) {
-					result = channelGroup->stop();
-					ERRCHECK(result);
+					wrapper.StopChannels();
 					state = MenuState::MainMenu;
 					break;
 				}
@@ -245,21 +146,15 @@ int FMOD_Main()
 				}
 
 				if (Common_BtnPress(BTN_UP)) {
-					volume++;
-					result = channelGroup->setVolume(volume);
-					ERRCHECK(result);
+					wrapper.RaiseVolume();
 				}
 
 				if (Common_BtnPress(BTN_DOWN)) {
-					volume--;
-					if (volume <= 0)
-						volume = 0;
-					result = channelGroup->setVolume(volume);
-					ERRCHECK(result);
+					wrapper.LowerVolume();
 				}
 
 				Common_Draw("Press %s to quit", Common_BtnStr(BTN_QUIT));
-				if(!paused)
+				if(playing)
 					Common_Draw("Press %s to pause", Common_BtnStr(BTN_ACTION1));
 				else
 					Common_Draw("Press %s to resume", Common_BtnStr(BTN_ACTION1));
@@ -275,23 +170,7 @@ int FMOD_Main()
 					if (Common_BtnPress((Common_Button)y)) {
 						nameOfTheSound = firstNineFilesInMediaDirectory[y];
 						state = MenuState::Playing;
-						result = system->createStream(Common_MediaPath(nameOfTheSound.c_str()), FMOD_LOOP_NORMAL, 0, &sound);
-						ERRCHECK(result);
-
-						result = sound->getNumSubSounds(&numsubsounds);
-						ERRCHECK(result);
-
-						if (numsubsounds)
-						{
-							sound->getSubSound(0, &sound_to_play);
-							ERRCHECK(result);
-						}
-						else
-						{
-							sound_to_play = sound;
-						}
-						result = system->playSound(sound_to_play, 0, false, &channel);
-						ERRCHECK(result);
+						wrapper.AddNewSoundAfterLoad(nameOfTheSound.c_str());
 						break;
 					}
 				}
@@ -306,39 +185,12 @@ int FMOD_Main()
 			case MenuState::PlayingPan:
 
 				if (Common_BtnPress(BTN_ACTION1)) {
-					result = channel->stop();
+					wrapper.Stop();
 					state = MenuState::MainMenu;
 					break;
 				}
 
-				// ==========================================================================================
-				// UPDATE THE LISTENER
-				// ==========================================================================================
-				{
-					FMOD_VECTOR forward = { 0.0f, 0.0f, 1.0f };
-					FMOD_VECTOR up = { 0.0f, 1.0f, 0.0f };
-					FMOD_VECTOR vel;
-
-
-					listenerpos.x = (float)sin(t * 0.05f) * 24.0f * DISTANCEFACTOR; // left right pingpong
-
-					
-					// vel = how far we moved last FRAME (m/f), then time compensate it to SECONDS (m/s).
-					vel.x = (listenerpos.x - lastpos.x) * (1000 / INTERFACE_UPDATETIME);
-					vel.y = (listenerpos.y - lastpos.y) * (1000 / INTERFACE_UPDATETIME);
-					vel.z = (listenerpos.z - lastpos.z) * (1000 / INTERFACE_UPDATETIME);
-
-					// store pos for next time
-					lastpos = listenerpos;
-
-					result = system->set3DListenerAttributes(0, &listenerpos, &vel, &forward, &up);
-					ERRCHECK(result);
-
-					t += (30 * (1.0f / (float)INTERFACE_UPDATETIME));    // t is just a time value .. it increments in 30m/s steps in this example
-				}
-
-				result = system->update();
-				ERRCHECK(result);
+				wrapper.MakeSoundPanLeftToRight();
 
 				Common_Draw("Press %s to quit", Common_BtnStr(BTN_QUIT));
 				Common_Draw("Press %s to stop the sound and go to the main menu", Common_BtnStr(BTN_ACTION1));
@@ -354,12 +206,7 @@ int FMOD_Main()
 
 	} while (!Common_BtnPress(BTN_QUIT));
 
-	result = system->close();
-	ERRCHECK(result);
-	result = system->release();
-	ERRCHECK(result);
-
-	Common_Close();
+	wrapper.CloseFMOD();
 
 
 	return 0;
